@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>Admin Dashboard</h2>
+
+    <!-- Employee Details and Logs -->
+    <h3 class="mt-5">Employee Punch Records</h3>
+    <table class="table table-striped mt-3">
+        <thead>
+            <tr>
+                <th>Employee</th>
+                <th>Date</th>
+                <th>Punch In</th>
+                <th>Punch Out</th>
+                <th>Hours Worked</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for log in logs %}
+            <tr>
+                <td>{{ log.user.username }}</td>
+                <td>{{ log.date }}</td>
+                <td>{{ log.punch_in.strftime('%I:%M %p') if log.punch_in else 'N/A' }}</td>
+                <td>{{ log.punch_out.strftime('%I:%M %p') if log.punch_out else 'N/A' }}</td>
+                <td>{{ '%.2f' % (log.punch_out - log.punch_in).total_seconds() / 3600 if log.punch_in and log.punch_out else 'N/A' }}</td>
+                <td><a href="{{ url_for('main.modify_punch', log_id=log.id) }}">Modify</a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Total Hours Worked by Employees (Bar Graph) -->
+    <h3 class="mt-5">Total Hours Worked by Employees</h3>
+    <canvas id="employeeChart"></canvas>
+
+    <script>
+        var ctx = document.getElementById('employeeChart').getContext('2d');
+        var employeeHoursData = {
+            labels: [{{ employees|map(attribute='username')|join(', ') }}],
+            datasets: [{
+                label: 'Total Hours Worked',
+                data: [{{ employee_hours.values()|join(', ') }}],
+                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1
+            }]
+        };
+
+        var employeeChart = new Chart(ctx, {
+            type: 'bar',
+            data: employeeHoursData,
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            });
+    </script>
+</div>
+{% endblock %}

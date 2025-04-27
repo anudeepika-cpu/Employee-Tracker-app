@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="mb-4">Welcome, {{ current_user.username }}!</h2>
+
+    {% if is_punched_in %}
+        <form method="POST" action="{{ url_for('main.punch_out') }}">
+            <button type="submit" class="btn btn-danger btn-lg">Punch Out</button>
+        </form>
+    {% else %}
+        <form method="POST" action="{{ url_for('main.punch_in') }}">
+            <button type="submit" class="btn btn-success btn-lg">Punch In</button>
+        </form>
+    {% endif %}
+
+    <hr>
+
+    <h3 class="mt-5">Your Punch Records</h3>
+    <table class="table table-striped mt-3">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Punch In</th>
+                <th>Punch Out</th>
+                <th>Hours Worked</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for log in logs %}
+            <tr>
+                <td>{{ log.date }}</td>
+                <td>{{ log.punch_in.strftime('%I:%M %p') }}</td>
+                <td>
+                    {% if log.punch_out %}
+                        {{ log.punch_out.strftime('%I:%M %p') }}
+                    {% else %}
+                        Still working...
+                    {% endif %}
+                </td>
+                <td>
+                    {% if log.punch_out %}
+                        {% set hours_worked = (log.punch_out - log.punch_in).total_seconds() / 3600 %}
+                        {{ '{:.2f}'.format(hours_worked) }}
+                    {% else %}
+                        --
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <hr>
+    <h4>Total Hours Worked: {{ total_hours }}</h4>
+</div>
+{% endblock %}

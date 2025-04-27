@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h2>Modify Punch Record</h2>
+    <form method="POST">
+        <div>
+            <label for="punch_in">Punch In:</label>
+            <input type="datetime-local" name="punch_in" value="{{ log.punch_in.strftime('%Y-%m-%dT%H:%M') }}">
+        </div>
+        <div>
+            <label for="punch_out">Punch Out:</label>
+            <input type="datetime-local" name="punch_out" value="{{ log.punch_out.strftime('%Y-%m-%dT%H:%M') }}">
+        </div>
+        <button type="submit">Save Changes</button>
+    </form>
+{% endblock %}
